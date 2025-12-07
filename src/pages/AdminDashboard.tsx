@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { LogOut, Plus, Trash2, Calendar, Clock, MapPin } from "lucide-react";
+import { LogOut, Plus, Trash2, Calendar, Clock, MapPin, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 
 interface Program {
@@ -16,6 +16,18 @@ interface Program {
   time: string;
   maps_link: string;
   created_at: string;
+}
+
+interface Enquiry {
+  id: string;
+  name: string;
+  phone: string;
+  email: string | null;
+  created_at: string;
+  program: {
+    city: string;
+    date: string;
+  } | null;
 }
 
 const AdminDashboard = () => {
@@ -40,9 +52,25 @@ const AdminDashboard = () => {
         .from("programs")
         .select("*")
         .order("date", { ascending: true });
-      
+
       if (error) throw error;
       return data as Program[];
+    },
+  });
+
+  const { data: enquiries } = useQuery({
+    queryKey: ["enquiries"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("enquiries")
+        .select(`
+          *,
+          program:programs(city, date)
+        `)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data as Enquiry[];
     },
   });
 
@@ -236,6 +264,69 @@ const AdminDashboard = () => {
               <p className="text-muted-foreground">No programs scheduled yet.</p>
             </div>
           )}
+        </section>
+
+        {/* Enquiries Section */}
+        <section className="mt-12 mb-12">
+          <h2 className="font-display text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
+            <MessageSquare className="w-6 h-6 text-primary" />
+            PARTICIPANT ENQUIRIES
+          </h2>
+
+          <div className="bg-card border-2 border-border rounded-xl overflow-hidden shadow-card">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-secondary text-white">
+                  <tr>
+                    <th className="p-4 text-left">Date</th>
+                    <th className="p-4 text-left">Name</th>
+                    <th className="p-4 text-left">Contact</th>
+                    <th className="p-4 text-left">Program</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {enquiries && enquiries.length > 0 ? (
+                    enquiries.map((enquiry) => (
+                      <tr key={enquiry.id} className="hover:bg-muted/50 transition-colors">
+                        <td className="p-4 text-foreground/80">
+                          {format(new Date(enquiry.created_at), "MMM d, yyyy")}
+                        </td>
+                        <td className="p-4 font-semibold text-foreground">
+                          {enquiry.name}
+                        </td>
+                        <td className="p-4 text-foreground/80">
+                          <div className="flex flex-col">
+                            <span className="font-medium text-primary">{enquiry.phone}</span>
+                            {enquiry.email && (
+                              <span className="text-sm text-muted-foreground">{enquiry.email}</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="p-4 text-foreground/80">
+                          {enquiry.program ? (
+                            <div className="flex flex-col">
+                              <span className="font-bold">{enquiry.program.city.toUpperCase()}</span>
+                              <span className="text-sm">
+                                {format(new Date(enquiry.program.date), "MMM d")}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground italic">Deleted Program</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="p-8 text-center text-muted-foreground">
+                        No enquiries received yet.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </section>
       </main>
     </div>

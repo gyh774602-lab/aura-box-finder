@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { MapPin, Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import EnquiryDialog from "@/components/EnquiryDialog";
 import heroImage from "@/assets/hero-boxing.jpg";
 
 interface Program {
@@ -22,7 +23,7 @@ const Index = () => {
         .from("programs")
         .select("*")
         .order("date", { ascending: true });
-      
+
       if (error) throw error;
       return data as Program[];
     },
@@ -33,14 +34,14 @@ const Index = () => {
       {/* Hero Section */}
       <section className="relative h-[60vh] md:h-[70vh] overflow-hidden">
         <div className="absolute inset-0">
-          <img 
-            src={heroImage} 
-            alt="Aura Boxing" 
+          <img
+            src={heroImage}
+            alt="Aura Boxing"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-background" />
         </div>
-        
+
         <div className="relative h-full flex flex-col items-center justify-center text-center px-4">
           <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-4 tracking-wider drop-shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-1000">
             AURA BOXING
@@ -48,8 +49,8 @@ const Index = () => {
           <p className="text-xl md:text-2xl text-white/90 max-w-2xl mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
             Find Your Power. Find Your Program.
           </p>
-          <Button 
-            size="lg" 
+          <Button
+            size="lg"
             className="bg-primary hover:bg-primary/90 text-white font-bold px-8 py-6 text-lg shadow-strong animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300"
             onClick={() => document.getElementById('programs')?.scrollIntoView({ behavior: 'smooth' })}
           >
@@ -86,7 +87,7 @@ const Index = () => {
                       {program.city.toUpperCase()}
                     </h3>
                   </div>
-                  
+
                   <div className="p-6 space-y-4">
                     <div className="flex items-center gap-3 text-foreground">
                       <Calendar className="w-5 h-5 text-primary" />
@@ -94,12 +95,12 @@ const Index = () => {
                         {format(new Date(program.date), "MMMM dd, yyyy")}
                       </span>
                     </div>
-                    
+
                     <div className="flex items-center gap-3 text-foreground">
                       <Clock className="w-5 h-5 text-primary" />
                       <span className="font-semibold">{program.time}</span>
                     </div>
-                    
+
                     <Button
                       variant="outline"
                       className="w-full mt-4 border-2 border-primary text-primary hover:bg-primary hover:text-white font-bold transition-all"
@@ -108,6 +109,7 @@ const Index = () => {
                       <MapPin className="w-4 h-4 mr-2" />
                       View Location
                     </Button>
+                    <EnquiryDialog programId={program.id} programCity={program.city} />
                   </div>
                 </div>
               ))}
@@ -118,16 +120,16 @@ const Index = () => {
             </div>
           )}
         </div>
-      </section>
+      </section >
 
       {/* Footer */}
-      <footer className="bg-secondary text-white py-8 px-4 mt-16">
+      < footer className="bg-secondary text-white py-8 px-4 mt-16" >
         <div className="max-w-6xl mx-auto text-center">
           <p className="font-display text-2xl font-bold mb-2 tracking-wider">AURA BOXING</p>
           <p className="text-white/70">Building Champions, One Round at a Time</p>
         </div>
-      </footer>
-    </div>
+      </footer >
+    </div >
   );
 };
 
